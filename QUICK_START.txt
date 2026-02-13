@@ -1,0 +1,264 @@
+================================================================================
+                    NORDHAVN LOGISTICS DASHBOARD
+                           QUICK START GUIDE
+================================================================================
+
+PROJECT STRUCTURE:
+├── backend/          (Express.js + MongoDB API)
+└── frontend/         (Next.js React App)
+
+================================================================================
+STEP 1: MONGODB SETUP (Choose One)
+================================================================================
+
+OPTION A: MongoDB Atlas (Cloud - RECOMMENDED)
+─────────────────────────────────────────────
+1. Go to: https://www.mongodb.com/cloud/atlas
+2. Create free account
+3. Create new cluster
+4. Click "Connect" → "Connect your application"
+5. Copy connection string:
+   mongodb+srv://username:password@cluster.mongodb.net/nordhavn
+6. Use this in backend/.env
+
+OPTION B: Local MongoDB
+───────────────────────
+1. Download: https://www.mongodb.com/try/download/community
+2. Install and start MongoDB service
+3. Connection string:
+   mongodb://localhost:27017/nordhavn
+
+================================================================================
+STEP 2: BACKEND SETUP
+================================================================================
+
+cd backend
+
+# Create .env file
+cp .env.example .env
+
+# Edit .env and add your MongoDB URI:
+# MONGODB_URI=your_connection_string_here
+# JWT_SECRET=any_random_secret_key_here
+
+# Install dependencies
+npm install
+
+# Seed demo data (creates users and 6 shipments)
+node seeds/seedData.js
+
+# Start backend server
+npm run dev
+
+Expected output:
+  MongoDB connected successfully
+  Server running on port 5000
+
+================================================================================
+STEP 3: FRONTEND SETUP (New Terminal)
+================================================================================
+
+cd frontend
+
+# Create .env file
+cp .env.example .env
+
+# Install dependencies
+npm install
+
+# Start frontend
+npm run dev
+
+Expected output:
+  ready - started server on 0.0.0.0:3000, url: http://localhost:3000
+
+================================================================================
+STEP 4: OPEN APPLICATION
+================================================================================
+
+Open in browser: http://localhost:3000
+
+You should see the login page.
+
+================================================================================
+LOGIN CREDENTIALS
+================================================================================
+
+ADMIN ACCOUNT:
+  Email: admin@test.com
+  Password: password123
+
+MANAGER ACCOUNT:
+  Email: manager@test.com
+  Password: password123
+
+================================================================================
+WHAT YOU CAN DO
+================================================================================
+
+AS ADMIN:
+✓ View dashboard with charts
+✓ View all shipments
+✓ Click "Manage Shipments" in sidebar
+✓ Add new shipments with complete form
+✓ Delete shipments
+✓ View shipment details
+✓ Search and filter shipments
+
+AS MANAGER:
+✓ View dashboard
+✓ View all shipments
+✓ View shipment details
+✗ Cannot add/delete shipments (admin only)
+
+================================================================================
+ADDING A NEW SHIPMENT (Admin Only)
+================================================================================
+
+1. Login as admin@test.com
+2. Click "Manage Shipments" in sidebar
+3. Click "Add New Shipment"
+4. Fill form:
+   - Shipment ID (e.g., SHP-007)
+   - Origin (city name)
+   - Destination (city name)
+   - Status (dropdown)
+   - Risk Score (0-100)
+   - Compliance % (0-100)
+   - Departure Date
+   - Expected Arrival Date
+   - Cargo Type
+   - Weight (kg)
+   - Value ($)
+   - Current Location
+   - Notes (optional)
+5. Click "Add Shipment"
+6. New shipment appears instantly on:
+   - Dashboard
+   - Shipments List
+   - Manage Shipments table
+
+================================================================================
+DELETING A SHIPMENT (Admin Only)
+================================================================================
+
+1. Go to "Manage Shipments"
+2. Find shipment in table
+3. Click "Delete" button
+4. Confirm deletion
+5. Shipment removed from all views
+
+================================================================================
+DATABASE FIELDS
+================================================================================
+
+Each shipment has:
+- shipmentId (unique ID like SHP-001)
+- origin (starting location)
+- destination (final location)
+- status (In Transit, At Port, Delayed, Completed)
+- riskScore (0-100, affects KPI cards)
+- compliancePercentage (0-100, for compliance tracking)
+- departureDate (when shipment left)
+- expectedArrival (when should arrive)
+- cargoType (Electronics, Chemicals, etc.)
+- weight (in kilograms)
+- value (cargo value in USD)
+- currentLocation (current position)
+- documents (proof, bills, etc.)
+- notes (any special info)
+- createdAt, updatedAt (auto-generated timestamps)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+BACKEND WON'T START:
+  → Check MongoDB connection string in .env
+  → Verify MongoDB is running
+  → Check if port 5000 is in use
+
+FRONTEND WON'T START:
+  → Verify backend is running first
+  → Check NEXT_PUBLIC_API_URL in .env
+  → Delete node_modules and reinstall
+
+CAN'T LOGIN:
+  → Use exact credentials: admin@test.com / password123
+  → Check backend is running
+  → Check browser console for errors
+
+CAN'T ADD SHIPMENT:
+  → Must be logged in as admin
+  → Fill all required fields
+  → Check backend logs for errors
+
+API ERRORS:
+  → Check backend console for connection errors
+  → Verify MongoDB is connected
+  → Restart backend server
+
+================================================================================
+FILE LOCATIONS TO EDIT
+================================================================================
+
+MongoDB Connection:
+  → backend/.env (MONGODB_URI)
+
+API URL:
+  → frontend/.env (NEXT_PUBLIC_API_URL)
+
+Backend Logic:
+  → backend/routes/shipmentRoutes.js
+  → backend/models/Shipment.js
+
+Frontend Pages:
+  → frontend/pages/shipments.js
+  → frontend/pages/manage-shipments.js
+  → frontend/pages/dashboard.js
+
+Forms:
+  → frontend/components/ShipmentForm.js
+
+Styling:
+  → frontend/styles/globals.css
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. ✓ Set up MongoDB connection
+2. ✓ Start backend: npm run dev (in backend/)
+3. ✓ Start frontend: npm run dev (in frontend/)
+4. ✓ Open http://localhost:3000
+5. ✓ Login with admin@test.com / password123
+6. ✓ Click "Manage Shipments"
+7. ✓ Add a new shipment
+8. ✓ Watch it appear on dashboard!
+
+================================================================================
+FOR PRODUCTION DEPLOYMENT
+================================================================================
+
+Backend:
+  1. Use production MongoDB URI
+  2. Change JWT_SECRET to random 32+ char string
+  3. Set NODE_ENV=production
+  4. Deploy to Heroku, Railway, or Render
+
+Frontend:
+  1. Update NEXT_PUBLIC_API_URL to production backend
+  2. Deploy to Vercel or Netlify
+  3. Use custom domain
+
+================================================================================
+DOCUMENTATION
+================================================================================
+
+For detailed setup: See SETUP_INSTRUCTIONS.md
+For API details: See README.md
+
+================================================================================
+                              Ready to Use!
+           Start with Step 2 (Backend Setup) and follow along.
+================================================================================
