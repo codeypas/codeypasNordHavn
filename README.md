@@ -19,7 +19,9 @@ npm run dev
 
 Open http://localhost:3000
 
-**Demo Account:** admin@test.com / password123
+**Demo Account:** 
+admin: bijay@gmail.com / password123
+manager: manager@gmail.com / password123
 
 ## Project Features
 
@@ -49,18 +51,10 @@ Open http://localhost:3000
 
 ## MongoDB Setup
 
-### Using MongoDB Atlas (Recommended)
+### Using MongoDB Atlas
 
-1. Visit https://www.mongodb.com/cloud/atlas
-2. Create free account
-3. Create cluster
-4. Get connection string
-5. Add to `.env` in backend folder
-
-### Using Local MongoDB
-
-- Install from https://www.mongodb.com
-- Use connection string: `mongodb://localhost:27017/nordhavn`
+1. Get connection string
+2. Add to `.env` in backend folder
 
 ## Database Models
 
@@ -109,6 +103,7 @@ backend/
 
 **Auth:**
 - POST /api/auth/login
+- POST /api/auth/register
 - GET /api/auth/me
 
 **Shipments:**
@@ -130,12 +125,15 @@ JWT_SECRET=your_jwt_secret_key
 
 **Frontend (.env):**
 ```
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=http://localhost:5001
 ```
 
-## Getting Help
+---
+### 🌐 Connect & Contribute
 
-See SETUP_INSTRUCTIONS.md for detailed setup and troubleshooting
+📌 [GitHub Profile](https://github.com/codeypas)  
+📧 Contact: bjbestintheworld@gmail.com  
+🔗 [Portfolio](https://bijayadhikari28.com.np/) 
 
 ---
 
