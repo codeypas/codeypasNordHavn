@@ -134,7 +134,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5001
 📌 [GitHub Profile](https://github.com/codeypas)  
 📧 Contact: bjbestintheworld@gmail.com  
 🔗 [Portfolio](https://bijayadhikari28.com.np/) 
-.
+
 ---
 
 Built with Next.js + Express.js + MongoDB
