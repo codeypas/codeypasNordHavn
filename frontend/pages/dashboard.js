@@ -53,6 +53,8 @@ export default function Dashboard() {
   }, []);
 
   const COLORS = ['#10b981', '#f59e0b', '#ef4444'];
+  const unusualCount = shipments.filter((s) => s.isUnusual).length;
+  const highSeverityUnusualCount = shipments.filter((s) => s.anomalySeverity === 'high').length;
 
   return (
     <Layout>
@@ -60,7 +62,7 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">
             <p className="text-slate-600 text-sm font-medium">Total Shipments</p>
             <p className="text-3xl font-bold text-slate-900 mt-2">{shipments.length}</p>
@@ -81,6 +83,14 @@ export default function Dashboard() {
                 : 0}
               %
             </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <p className="text-slate-600 text-sm font-medium">Unusual Patterns</p>
+            <p className="text-3xl font-bold text-orange-600 mt-2">{unusualCount}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <p className="text-slate-600 text-sm font-medium">Critical Unusual</p>
+            <p className="text-3xl font-bold text-red-600 mt-2">{highSeverityUnusualCount}</p>
           </div>
         </div>
 

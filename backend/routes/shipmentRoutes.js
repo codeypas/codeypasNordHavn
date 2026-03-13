@@ -1,13 +1,21 @@
 const express = require('express');
 const Shipment = require('../models/Shipment');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { enrichShipmentsWithAnomalies, enrichShipmentWithAnomalies } = require('../utils/shipmentAnomaly');
 
 const router = express.Router();
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const shipments = await Shipment.find().sort({ createdAt: -1 });
-    res.json(shipments);
+    const enriched = enrichShipmentsWithAnomalies(shipments);
+    const unusualOnly = req.query.unusualOnly === 'true';
+
+    if (unusualOnly) {
+      return res.json(enriched.filter((shipment) => shipment.isUnusual));
+    }
+
+    res.json(enriched);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -19,7 +27,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
     if (!shipment) {
       return res.status(404).json({ error: 'Shipment not found' });
     }
-    res.json(shipment);
+    const allShipments = await Shipment.find();
+    const enriched = enrichShipmentWithAnomalies(shipment, allShipments);
+    res.json(enriched);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

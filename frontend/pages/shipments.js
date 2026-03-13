@@ -50,6 +50,17 @@ export default function Shipments() {
     return 'bg-red-100 text-red-800';
   };
 
+  const getAnomalyColor = (severity) => {
+    if (severity === 'high') return 'bg-red-100 text-red-800';
+    if (severity === 'medium') return 'bg-orange-100 text-orange-800';
+    return 'bg-slate-100 text-slate-700';
+  };
+
+  const getTopReason = (shipment) => {
+    if (!shipment?.anomalies?.length) return '-';
+    return shipment.anomalies[0].reason;
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -95,6 +106,7 @@ export default function Shipments() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Route</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Risk</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Pattern</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Compliance</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Actions</th>
               </tr>
@@ -115,6 +127,18 @@ export default function Shipments() {
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(shipment.riskScore)}`}>
                       {shipment.riskScore}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {shipment.isUnusual ? (
+                      <div className="space-y-1">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getAnomalyColor(shipment.anomalySeverity)}`}>
+                          Unusual ({shipment.anomalySeverity || 'low'})
+                        </span>
+                        <p className="text-xs text-slate-500 max-w-xs">{getTopReason(shipment)}</p>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">Normal</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{shipment.compliancePercentage}%</td>
                   <td className="px-6 py-4 text-sm space-x-2">

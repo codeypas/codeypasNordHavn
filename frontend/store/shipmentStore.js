@@ -8,11 +8,12 @@ export const useShipmentStore = create((set, get) => ({
   loading: false,
   error: null,
 
-  fetchShipments: async (token) => {
+  fetchShipments: async (token, options = {}) => {
     set({ loading: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/api/shipments`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: options.unusualOnly ? { unusualOnly: true } : undefined,
       });
       set({ shipments: response.data, loading: false });
     } catch (error) {

@@ -57,6 +57,12 @@ export default function ManageShipments() {
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
+  const getAnomalyColor = (severity) => {
+    if (severity === 'high') return 'bg-red-100 text-red-800';
+    if (severity === 'medium') return 'bg-orange-100 text-orange-800';
+    return 'bg-slate-100 text-slate-700';
+  };
+
   if (loading || !user || user.role !== 'admin') {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
@@ -95,6 +101,7 @@ export default function ManageShipments() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Route</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Risk Score</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Pattern</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Actions</th>
               </tr>
             </thead>
@@ -109,6 +116,20 @@ export default function ManageShipments() {
                     <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">{shipment.status}</span>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{shipment.riskScore}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {shipment.isUnusual ? (
+                      <div className="space-y-1">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getAnomalyColor(shipment.anomalySeverity)}`}>
+                          Unusual ({shipment.anomalySeverity || 'low'})
+                        </span>
+                        <p className="text-xs text-slate-500 max-w-xs">
+                          {shipment.anomalies?.[0]?.reason || 'Pattern flagged by anomaly rules.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">Normal</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 text-sm space-x-2">
                     <button
                       onClick={() => handleDelete(shipment._id)}
