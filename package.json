@@ -1,0 +1,13 @@
+{
+  "name": "nordhavn-logistics-workspace",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:ml": "npm --prefix ml run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:frontend": "npm --prefix frontend run start",
+    "start:backend": "npm --prefix backend run start",
+    "start:ml": "npm --prefix ml run start"
+  }
+}

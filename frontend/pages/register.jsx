@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthStore } from '../store/authStore';
 
 export default function Register() {
   const router = useRouter();
   const register = useAuthStore((state) => state.register);
+  const googleRegister = useAuthStore((state) => state.googleRegister);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -14,6 +15,101 @@ export default function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
+  const googleButtonRef = useRef(null);
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const isGoogleConfigured =
+    !!googleClientId &&
+    googleClientId !== 'your_google_oauth_client_id';
+
+  useEffect(() => {
+    if (!isGoogleConfigured) {
+      setGoogleError('Add a valid Google client ID to enable Google signup.');
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const initializeGoogle = () => {
+      if (cancelled || !window.google || !googleButtonRef.current) {
+        return;
+      }
+
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: async (response) => {
+            if (!response.credential) {
+              setError('Google signup failed');
+              return;
+            }
+
+            setError('');
+            setSuccess('');
+            setLoading(true);
+
+            try {
+              await googleRegister(response.credential);
+              setSuccess('Google account created successfully as manager.');
+              router.push('/dashboard');
+            } catch (err) {
+              setError(err?.message || 'Google signup failed');
+            } finally {
+              setLoading(false);
+            }
+          },
+        });
+
+        googleButtonRef.current.innerHTML = '';
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          width: 320,
+          text: 'signup_with',
+          shape: 'rectangular',
+        });
+
+        setGoogleError('');
+        setIsGoogleReady(true);
+      } catch (err) {
+        setGoogleError('Unable to load Google signup right now.');
+        setIsGoogleReady(false);
+      }
+    };
+
+    const scriptSelector =
+      'script[src="https://accounts.google.com/gsi/client"]';
+    const existingScript = document.querySelector(scriptSelector);
+
+    if (existingScript) {
+      if (window.google) {
+        initializeGoogle();
+      } else {
+        existingScript.addEventListener('load', initializeGoogle, { once: true });
+      }
+
+      return () => {
+        cancelled = true;
+        existingScript.removeEventListener('load', initializeGoogle);
+      };
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = initializeGoogle;
+    script.onerror = () => {
+      setGoogleError('Failed to load Google signup script.');
+      setIsGoogleReady(false);
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [googleClientId, googleRegister, isGoogleConfigured, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +126,8 @@ export default function Register() {
       }, 1500);
 
     } catch (err) {
-      setError(err);
+      const message = err?.message || 'Registration failed';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -120,6 +217,38 @@ export default function Register() {
           >
             {loading ? 'Registering...' : 'Register'}
           </button>
+
+          {isGoogleConfigured && (
+            <>
+              <div className="my-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-slate-200" />
+                <span className="text-xs uppercase tracking-wide text-slate-400">
+                  Or
+                </span>
+                <div className="h-px flex-1 bg-slate-200" />
+              </div>
+
+              <div className="flex justify-center">
+                <div ref={googleButtonRef} />
+              </div>
+
+              {!isGoogleReady && !googleError && (
+                <p className="mt-3 text-center text-sm text-slate-500">
+                  Loading Google signup...
+                </p>
+              )}
+
+              {googleError && (
+                <p className="mt-3 text-center text-sm text-amber-700">
+                  {googleError}
+                </p>
+              )}
+
+              <p className="mt-3 text-center text-xs text-slate-500">
+                Google signup creates a `manager` account automatically.
+              </p>
+            </>
+          )}
 
           <p className="mt-4 text-sm text-center text-slate-600">
             Already have an account?{' '}

@@ -1,21 +1,17 @@
 const express = require('express');
 const Shipment = require('../models/Shipment');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
-const { enrichShipmentsWithAnomalies, enrichShipmentWithAnomalies } = require('../utils/shipmentAnomaly');
+const {
+  enrichShipmentPrediction,
+  enrichShipmentsPrediction,
+} = require('../services/mlClient');
 
 const router = express.Router();
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const shipments = await Shipment.find().sort({ createdAt: -1 });
-    const enriched = enrichShipmentsWithAnomalies(shipments);
-    const unusualOnly = req.query.unusualOnly === 'true';
-
-    if (unusualOnly) {
-      return res.json(enriched.filter((shipment) => shipment.isUnusual));
-    }
-
-    res.json(enriched);
+    res.json(await enrichShipmentsPrediction(shipments));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -27,9 +23,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
     if (!shipment) {
       return res.status(404).json({ error: 'Shipment not found' });
     }
-    const allShipments = await Shipment.find();
-    const enriched = enrichShipmentWithAnomalies(shipment, allShipments);
-    res.json(enriched);
+    res.json(await enrichShipmentPrediction(shipment));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -62,7 +56,7 @@ router.post('/', adminMiddleware, async (req, res) => {
     });
 
     await newShipment.save();
-    res.status(201).json(newShipment);
+    res.status(201).json(await enrichShipmentPrediction(newShipment));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -80,7 +74,7 @@ router.put('/:id', adminMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'Shipment not found' });
     }
 
-    res.json(shipment);
+    res.json(await enrichShipmentPrediction(shipment));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

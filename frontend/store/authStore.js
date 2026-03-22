@@ -8,37 +8,26 @@ export const useAuthStore = create((set) => ({
   token: null,
   loading: false,
 
-  // ================= REGISTER =================
-  // register: async (name, email, password) => {
-  //   try {
-  //     const response = await axios.post(`${API_URL}/api/auth/register`, {
-  //       name,
-  //       email,
-  //       password,
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     throw error.response?.data?.error || 'Registration failed';
-  //   }
-  // },
+  register: async (name, email, password, role = 'manager') => {
+    set({ loading: true });
+    try {
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
+        name,
+        email,
+        password,
+        role,
+      });
 
+      return response.data;
+    } catch (error) {
+      const message =
+        error?.response?.data?.error || error.message || 'Registration failed';
+      throw new Error(message);
+    } finally {
+      set({ loading: false });
+    }
+  },
 
-  register: async (name, email, password, role) => {
-  try {
-    const response = await axios.post(`${API_URL}/api/auth/register`, {
-      name,
-      email,
-      password,
-      role,
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data?.error || 'Registration failed';
-  }
-},
-
-
-  // ================= LOGIN =================
   login: async (email, password) => {
     set({ loading: true });
     try {
@@ -53,10 +42,51 @@ export const useAuthStore = create((set) => ({
       set({ user, token, loading: false });
 
       return true;
-
     } catch (error) {
       set({ loading: false });
-      throw error.response?.data?.error || 'Login failed';
+      const message = error?.response?.data?.error || 'Login failed';
+      throw new Error(message);
+    }
+  },
+
+  googleLogin: async (credential) => {
+    set({ loading: true });
+    try {
+      const response = await axios.post(`${API_URL}/api/auth/google`, {
+        credential,
+      });
+
+      const { token, user } = response.data;
+
+      localStorage.setItem('token', token);
+      set({ user, token, loading: false });
+
+      return true;
+    } catch (error) {
+      set({ loading: false });
+      const message = error?.response?.data?.error || 'Google login failed';
+      throw new Error(message);
+    }
+  },
+
+  googleRegister: async (credential) => {
+    set({ loading: true });
+    try {
+      const response = await axios.post(`${API_URL}/api/auth/google/register`, {
+        credential,
+      });
+
+      const { token, user } = response.data;
+
+      localStorage.setItem('token', token);
+      set({ user, token, loading: false });
+
+      return true;
+    } catch (error) {
+      set({ loading: false });
+      const message =
+        error?.response?.data?.error || 'Google registration failed';
+      throw new Error(message);
     }
   },
 
@@ -67,7 +97,9 @@ export const useAuthStore = create((set) => ({
 
   checkAuth: async () => {
     const token = localStorage.getItem('token');
-    if (!token) return false;
+    if (!token) {
+      return false;
+    }
 
     try {
       const response = await axios.get(`${API_URL}/api/auth/me`, {
@@ -76,8 +108,8 @@ export const useAuthStore = create((set) => ({
 
       set({ user: response.data, token });
       return true;
-
-    } catch {
+    } catch (error) {
+      console.error('Auth check failed:', error);
       localStorage.removeItem('token');
       set({ user: null, token: null });
       return false;

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthStore } from '../store/authStore';
 import { useShipmentStore } from '../store/shipmentStore';
+import { useNotificationStore } from '../store/notificationStore';
 import Layout from '../components/Layout';
 import ShipmentForm from '../components/ShipmentForm';
+import { generateAllShipmentsPDF } from '../utils/pdfGenerator';
 
 export default function ManageShipments() {
   const router = useRouter();
@@ -12,10 +14,14 @@ export default function ManageShipments() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const shipments = useShipmentStore((state) => state.shipments);
   const fetchShipments = useShipmentStore((state) => state.fetchShipments);
+  const addShipment = useShipmentStore((state) => state.addShipment);
+  const updateShipment = useShipmentStore((state) => state.updateShipment);
   const deleteShipment = useShipmentStore((state) => state.deleteShipment);
+  const addNotification = useNotificationStore((state) => state.addNotification);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [editingShipment, setEditingShipment] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -43,18 +49,51 @@ export default function ManageShipments() {
     if (confirm('Are you sure you want to delete this shipment?')) {
       try {
         await deleteShipment(token, id);
-        setSuccessMessage('Shipment deleted successfully!');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        addNotification('Shipment deleted successfully!', 'success');
       } catch (error) {
-        alert('Error deleting shipment: ' + error);
+        addNotification('Error deleting shipment: ' + error, 'error');
       }
     }
   };
 
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setSuccessMessage('Shipment added successfully!');
-    setTimeout(() => setSuccessMessage(''), 3000);
+  const handleFormSubmit = async (formData) => {
+    setIsSubmitting(true);
+    try {
+      if (editingShipment) {
+        await updateShipment(token, editingShipment._id, formData);
+        addNotification('Shipment updated successfully!', 'success');
+      } else {
+        await addShipment(token, formData);
+        addNotification('Shipment added successfully!', 'success');
+      }
+
+      setShowForm(false);
+      setEditingShipment(null);
+    } catch (error) {
+      addNotification(`Error saving shipment: ${error}`, 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEdit = (shipment) => {
+    setEditingShipment(shipment);
+    setShowForm(true);
+  };
+
+  const downloadPDF = () => {
+    try {
+      if (shipments.length === 0) {
+        addNotification('No shipments to download', 'error');
+        return;
+      }
+
+      generateAllShipmentsPDF(shipments);
+      addNotification('PDF downloaded successfully', 'success');
+    } catch (error) {
+      console.error('PDF Error:', error);
+      addNotification('Error generating PDF', 'error');
+    }
   };
 
   const getAnomalyColor = (severity) => {
@@ -72,23 +111,32 @@ export default function ManageShipments() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-slate-900">Manage Shipments</h1>
-          {!showForm && (
+          <div className="space-x-2">
             <button
-              onClick={() => setShowForm(true)}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition"
+              onClick={downloadPDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition"
             >
-              Add New Shipment
+              Download Report PDF
             </button>
-          )}
+            {!showForm && (
+              <button
+                onClick={() => { setEditingShipment(null); setShowForm(true); }}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition"
+              >
+                Add New Shipment
+              </button>
+            )}
+          </div>
         </div>
-
-        {successMessage && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded text-green-800">{successMessage}</div>
-        )}
 
         {showForm && (
           <div className="bg-white p-6 rounded-lg shadow">
-            <ShipmentForm onSuccess={handleFormSuccess} onCancel={() => setShowForm(false)} />
+            <ShipmentForm 
+              onSubmit={handleFormSubmit}
+              onCancel={() => { setShowForm(false); setEditingShipment(null); }}
+              initialData={editingShipment}
+              isLoading={isSubmitting}
+            />
           </div>
         )}
 
@@ -131,6 +179,12 @@ export default function ManageShipments() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-sm space-x-2">
+                    <button
+                      onClick={() => handleEdit(shipment)}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() => handleDelete(shipment._id)}
                       className="text-red-600 hover:text-red-800 font-medium"

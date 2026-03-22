@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     name: {
       type: String,
@@ -21,6 +21,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['admin', 'manager'],
       default: 'manager',
+    },
+    provider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+    },
+    googleId: {
+      type: String,
+      sparse: true,
     },
   },
   { timestamps: true }
@@ -41,6 +50,10 @@ userSchema.pre('save', async function (next) {
 
 
 userSchema.methods.comparePassword = async function (password) {
+  if (!this.password) {
+    return false;
+  }
+
   return bcrypt.compare(password, this.password);
 };
 
