@@ -30,18 +30,11 @@ npm run dev
 ```
 
 You can also use the root workspace scripts:
-
-<<<<<<< HEAD
-**Demo Account:** 
-admin: bijay@gmail.com / password123
-manager: manager@gmail.com / password123
-=======
 ```bash
 npm run dev:backend
 npm run dev:frontend
 npm run dev:ml
 ```
->>>>>>> bb1f66c (gauth,notification, roport done)
 
 Open `http://localhost:3000`
 
@@ -64,7 +57,6 @@ Backend:
 - MongoDB + Mongoose
 - JWT auth
 
-<<<<<<< HEAD
 ### Using MongoDB Atlas
 
 1. Get connection string
@@ -82,18 +74,10 @@ Backend:
 - cargoType, weight, value
 - currentLocation, documents, notes
 
-## File Structure
-
-```
-=======
-ML:
-- Node.js + Express.js
-- Separate delay prediction API
 
 ## Folder Structure
 
 ```text
->>>>>>> bb1f66c (gauth,notification, roport done)
 frontend/
   components/
     Layout.jsx
@@ -158,7 +142,6 @@ ML_PORT=5002
 
 ## API Endpoints
 
-<<<<<<< HEAD
 **Auth:**
 - POST /api/auth/login
 - POST /api/auth/register
@@ -172,14 +155,12 @@ Backend:
 - `POST /api/shipments`
 - `PUT /api/shipments/:id`
 - `DELETE /api/shipments/:id`
->>>>>>> bb1f66c (gauth,notification, roport done)
 
 ML:
 - `POST /predict`
 
 ## Notes
 
-<<<<<<< HEAD
 **Backend (.env):**
 ```
 PORT=5000
@@ -200,4 +181,24 @@ Built with Next.js + Express.js + MongoDB
 - Shipment delay prediction is owned by the `ml/` service.
 - The backend enriches shipment responses with `delayPrediction`.
 - The frontend consumes the final API payload and stays focused on UI.
->>>>>>> bb1f66c (gauth,notification, roport done)
+
+## 🚀 Clone the repository:
+
+   ```bash
+   git clone https://github.com/codeypas/codeypasNordHavn
+   ```
+---
+
+## 📫 Contact
+
+Got feedback or want to connect?
+
+📌 [GitHub Profile](https://github.com/codeypas)  
+📧 Contact: bjbestintheworld@gmail.com  
+
+---
+### 🏆 Motto  
+**“Build. Learn. Repeat.”**
+
+---
+
