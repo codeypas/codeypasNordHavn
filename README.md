@@ -195,6 +195,7 @@ Got feedback or want to connect?
 
 📌 [GitHub Profile](https://github.com/codeypas)  
 📧 Contact: bjbestintheworld@gmail.com  
+📄 Project Brochure: https://drive.google.com/file/d/1eUnPTNYhHWyuGhOo5r6so6iFHEseLULT/view?usp=sharing
 
 ---
 ### 🏆 Motto  
